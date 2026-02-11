@@ -10,10 +10,10 @@ jobs:
   terraform:
     name: "Terraform"
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -23,14 +23,21 @@ jobs:
           aws-region: "us-east-1"
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
-          terraform_wrapper: false # Important for some EKS authentication workflows
+          terraform_wrapper: false
+
+      - name: Install AWS IAM Authenticator
+        run: |
+          curl -Lo aws-iam-authenticator https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v0.6.11/aws-iam-authenticator_0.6.11_linux_amd64
+          chmod +x ./aws-iam-authenticator
+          sudo mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator
 
       - name: Terraform Init
         run: terraform init
 
       - name: Update Kubeconfig
+        # This populates the ~/.kube/config so Terraform can reach the K8s API
         run: aws eks update-kubeconfig --region us-east-1 --name project-bedrock-cluster
 
       - name: Terraform Plan
@@ -40,11 +47,3 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve
-
-      - name: Generate Grading Data
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: |
-        
-          # Note: If you want this committed back to the repo automatically, 
-          # you would add git commands here. Otherwise, run it locally once 
-          # and push it to the repo manually.
