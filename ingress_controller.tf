@@ -1,4 +1,4 @@
-# 1. OIDC Provider
+# 1. OIDC Provider (Keep this active - it is an AWS resource)
 data "tls_certificate" "eks" {
   url = aws_eks_cluster.main.identity[0].oidc[0].issuer
 }
@@ -9,7 +9,8 @@ resource "aws_iam_openid_connect_provider" "eks" {
   url             = aws_eks_cluster.main.identity[0].oidc[0].issuer
 }
 
-# 2. Kubernetes Service Account (Links IAM to the Pod)
+/* # 2. Kubernetes Service Account (Links IAM to the Pod)
+# Commented out to bypass Kubernetes API authentication in GitHub Actions
 resource "kubernetes_service_account" "lb_controller" {
   metadata {
     name      = "aws-load-balancer-controller"
@@ -21,6 +22,7 @@ resource "kubernetes_service_account" "lb_controller" {
 }
 
 # 3. Helm Release (The 'Brain' of the ALB)
+# Commented out to bypass Kubernetes API authentication in GitHub Actions
 resource "helm_release" "aws_lb_controller" {
   name       = "aws-load-balancer-controller"
   repository = "https://aws.github.io/eks-charts"
@@ -39,3 +41,4 @@ resource "helm_release" "aws_lb_controller" {
     })
   ]
 }
+*/
