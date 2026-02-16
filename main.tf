@@ -1,6 +1,5 @@
 terraform {
   required_version = ">= 1.14.0"
-
   backend "s3" {
     bucket         = "charles-bedrock-tf-state"
     key            = "dev/terraform.tfstate"
@@ -8,7 +7,6 @@ terraform {
     dynamodb_table = "terraform-lock"
     encrypt        = true
   }
-
   required_providers {
     aws        = { source = "hashicorp/aws", version = "~> 5.0" }
     kubernetes = { source = "hashicorp/kubernetes", version = "~> 2.0" }
@@ -24,7 +22,6 @@ provider "aws" {
   }
 }
 
-# Data source to handle authentication tokens for the pipeline
 data "aws_eks_cluster_auth" "main" {
   name = aws_eks_cluster.main.name
 }
@@ -33,7 +30,6 @@ provider "kubernetes" {
   host                   = aws_eks_cluster.main.endpoint
   cluster_ca_certificate = base64decode(aws_eks_cluster.main.certificate_authority[0].data)
   token                  = data.aws_eks_cluster_auth.main.token
-
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.main.name]
@@ -46,7 +42,6 @@ provider "helm" {
     host                   = aws_eks_cluster.main.endpoint
     cluster_ca_certificate = base64decode(aws_eks_cluster.main.certificate_authority[0].data)
     token                  = data.aws_eks_cluster_auth.main.token
-
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
       args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.main.name]

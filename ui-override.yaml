@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ui
+  namespace: retail-app
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    service.beta.kubernetes.io/aws-load-balancer-type: "external"
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "instance"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol: "tcp"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-port: "traffic-port"
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/component: ui
+    app.kubernetes.io/instance: retail-store-sample-app
+  ports:
+    - port: 80
+      targetPort: 8080
+      nodePort: 31504

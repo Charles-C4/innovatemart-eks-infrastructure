@@ -1,14 +1,13 @@
-name: "Project Bedrock CI/CD"
+name: "Project Bedrock - Official Release Deployment"
 
 on:
   push:
     branches:
       - main
-  pull_request:
 
 jobs:
-  terraform:
-    name: "Terraform"
+  deploy:
+    name: "Deploy Official Release"
     runs-on: ubuntu-latest
 
     steps:
@@ -22,28 +21,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: "us-east-1"
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_wrapper: false
-
-      - name: Install AWS IAM Authenticator
-        run: |
-          curl -Lo aws-iam-authenticator https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v0.6.11/aws-iam-authenticator_0.6.11_linux_amd64
-          chmod +x ./aws-iam-authenticator
-          sudo mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator
-
-      - name: Terraform Init
-        run: terraform init
-
       - name: Update Kubeconfig
-        # This populates the ~/.kube/config so Terraform can reach the K8s API
         run: aws eks update-kubeconfig --region us-east-1 --name project-bedrock-cluster
 
-      - name: Terraform Plan
-        if: github.event_name == 'pull_request'
-        run: terraform plan -no-color
+      - name: Deploy Official Retail App Manifest
+        # This is the specific command requested by your lecturer
+        run: |
+          kubectl apply -f https://github.com/aws-containers/retail-store-sample-app/releases/latest/download/kubernetes.yaml
 
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve
+      - name: Verify Deployment
+        run: |
+          kubectl get nodes
+          kubectl get pods -A
+          kubectl get svc -A
