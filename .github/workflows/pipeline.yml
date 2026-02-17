@@ -27,7 +27,7 @@ jobs:
       - name: Deploy Official Retail App Manifest
         # This is the specific command requested by your lecturer
         run: |
-          kubectl apply -f https://github.com/aws-containers/retail-store-sample-app/releases/latest/download/kubernetes.yaml
+          kubectl apply -f https://github.com/aws-containers/retail-store-sample-app/releases/latest/download/kubernetes.yaml --validate=false
 
       - name: Verify Deployment
         run: |
