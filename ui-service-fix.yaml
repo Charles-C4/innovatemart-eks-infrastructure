@@ -4,11 +4,9 @@ metadata:
   name: ui
   namespace: retail-app
   annotations:
-    service.beta.kubernetes.io/aws-load-balancer-type: external
-    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: instance
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
     service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
-    service.beta.kubernetes.io/aws-load-balancer-healthcheck-port: "31504"
-    service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol: tcp
+    # Remove the manual healthcheck port; let the controller discover it
 spec:
   type: LoadBalancer
   selector:
@@ -18,5 +16,5 @@ spec:
   ports:
     - port: 80
       targetPort: 8080
-      nodePort: 31504
       protocol: TCP
+      # nodePort is removed so Kubernetes can assign it automatically
