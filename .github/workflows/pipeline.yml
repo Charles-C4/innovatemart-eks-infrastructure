@@ -25,7 +25,7 @@ jobs:
         run: aws eks update-kubeconfig --region us-east-1 --name project-bedrock-cluster
 
       - name: Deploy Official Retail App Manifest
-        # This is the specific command requested by your lecturer
+        
         run: |
           kubectl apply -f https://github.com/aws-containers/retail-store-sample-app/releases/latest/download/kubernetes.yaml --validate=false
           
